@@ -1,4 +1,4 @@
-from * import utils
+from utils import *
 import time
 
 GENESIS_index = 0
@@ -40,7 +40,7 @@ def generateNextBlock(data):
     previous_block = getLatestBlock()
     next_index = previous_block.index + 1
     next_timestamp = int(time.time())
-    next_hash = calculateHash(str(next_index + previous_block.hash + str(next_timestamp) + str(data))
+    next_hash = calculateHash(str(next_index + previous_block.hash + str(next_timestamp) + str(data)))
     return Block(next_index, previous_block.hash, next_timestamp, data, next_hash)
 
 def isValidNewBlock(newBlock, previousBlock):
