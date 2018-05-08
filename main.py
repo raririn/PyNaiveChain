@@ -1,30 +1,10 @@
-from utils import *
+from block import *
+
+from flask import Flask, request, render_template
+from flask_uwsgi_websocket import GeventWebSocket
 import time
 
-GENESIS_index = 0
-GENESIS_previousHash = 0
-GENESIS_timestamp = 1465154705
-GENESIS_data = "The first block"
-GENESIS_hash = calculateHash(str(0) + str(0) + str(GENESIS_timestamp) + GENESIS_data)
-
-class Block():
-    def __init__(self, index, previousHash, timestamp, data, hash):
-        self.index = index
-        self.previousHash = str(previousHash)
-        self.timestamp = timestamp
-        self.data = data
-        self.hash = str(hash)
-
-    def __str__(self):
-        return str(self.index) + self.previousHash + str(self.timestamp) + str(self.data) + self.hash
-
-    def calculate_block_hash(self):
-        return calculateHash(self.__str__())
-
-    def selfHashCheck(self):
-        return self.hash == str(self.calculate_block_hash())
-    
-
+# Blockchain methods
 
 def getGenesisBlock():
     ''' Return the hard-coded genesis block. '''
@@ -32,6 +12,7 @@ def getGenesisBlock():
 
 def getLatestBlock():
     ''' Return the latest block. '''
+    global blockchain
     current_length = len(blockchain)
     return blockchain[current_length - 1]
 
@@ -40,7 +21,7 @@ def generateNextBlock(data):
     previous_block = getLatestBlock()
     next_index = previous_block.index + 1
     next_timestamp = int(time.time())
-    next_hash = calculateHash(str(next_index + previous_block.hash + str(next_timestamp) + str(data)))
+    next_hash = calculateHash(str(next_index) + str(previous_block.hash) + str(next_timestamp) + str(data))
     return Block(next_index, previous_block.hash, next_timestamp, data, next_hash)
 
 def isValidNewBlock(newBlock, previousBlock):
@@ -49,22 +30,89 @@ def isValidNewBlock(newBlock, previousBlock):
         2. Previous Hash
         3. New Hash'''
     if previousBlock.index + 1 != newBlock.index:
+        print("Warning: Index check failed.")
         return False
     elif previousBlock.hash != newBlock.previousHash:
+        print("Warning: Previous hash check failed.")
         return False
-    elif newBlock.selfHashCheck():
+    elif not (newBlock.selfHashCheck()):
+        print("Warning: Self hash check failed.")
         return False
     return True
 
 def addBlock(newBlock):
     ''' If a new block is valid, push it to the end of chain. '''
+    # print("using addblock")
     if isValidNewBlock(newBlock, getLatestBlock()):
         global blockchain
         blockchain.append(newBlock)
+    else:
+        print("invalid block detected")
     return
 
-if __name__ == '__main__':
-    blockchain = []     # Initialization as a list
-    blockchain.append(getGenesisBlock)
+def isValidNewBlockWithDiff(newBlock, previousBlock):
+    if not isValidNewBlock(newBlock, previousBlock):
+        return False
+    elif not newBlock.hash[0] == '0':
+        return False
+    return True
 
+def addBlockWithDiff(newBlock):
+    if isValidNewBlockWithDiff(newBlock, getLatestBlock()):
+        global blockchain
+        blockchain.append(newBlock)
+        return "Hash fits."
+    else:
+        return "The hash doesn't fit."
+
+# HTTP Interface Methods
+app = Flask(__name__)
+ws = GeventWebSocket(app)
+def initServer():
+    app.run(host = HTTP_host, port = HTTP_port, debug = True)
+
+@app.route('/', methods = ['GET', 'POST'])
+def home():
+    #return home_txt
+    return render_template('home.html')
+
+@app.route('/blocks', methods = ['GET'])
+def blocks_get():
+    global blockchain
+    #print(blockchain)
+    return blockchain2txt(blockchain)
+
+@app.route('/mineBlock', methods = ['GET'])
+def mineblock_get():
+    return render_template('mine.html')
+
+@app.route('/mineBlock', methods = ['POST'])
+def mineblock_post():
+    data = request.form['data']
+    print(data)
+    addBlock(generateNextBlock(data))
+    return 'OK block added!'
     
+@app.route('/clientMine', methods = ['POST'])
+def clientMine_post():
+    data = str(request.form['data']) + str(request.form['nonce'])
+    return addBlockWithDiff(generateNextBlock(data))
+
+@app.route('/peers', methods = ['GET'])
+def peers_get():
+    pass
+
+@app.route('/addPeer', methods = ['POST'])
+def addPeer_post():
+    pass
+
+blockchain = []
+blockchain.append(getGenesisBlock())
+if __name__ == '__main__':
+    initServer()
+
+    # Debugging
+    # print(blockchain[0])
+    # print(GENESIS_hash)
+    # addBlock(generateNextBlock('data'))
+    #print(blockchain2txt(BC.blockchain))
