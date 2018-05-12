@@ -1,13 +1,13 @@
 import requests
+from param import *
 
-url = 'http://127.0.0.1:5001/clientMine'
 nonce = 0
 IN = input("Input the data:")
 while True:
     d = {'data':IN, 'nonce': nonce}
-    r = requests.post(url, d)
+    r = requests.post(MINING_url, d)
     print(r.text)
-    if r.text == "Hash fits.":
+    if r.text == MINING_successMessage:
         break
     nonce = nonce + 1
 print("Mined successfully.")

@@ -1,11 +1,7 @@
 from block import *
-
-from flask import Flask, request, render_template
-from flask_uwsgi_websocket import GeventWebSocket
 import time
 
 # Blockchain methods
-
 def getGenesisBlock():
     ''' Return the hard-coded genesis block. '''
     return Block(GENESIS_index, GENESIS_previousHash, GENESIS_timestamp, GENESIS_data, GENESIS_hash)
@@ -61,58 +57,10 @@ def addBlockWithDiff(newBlock):
     if isValidNewBlockWithDiff(newBlock, getLatestBlock()):
         global blockchain
         blockchain.append(newBlock)
-        return "Hash fits."
+        return MINING_successMessage
     else:
         return "The hash doesn't fit."
 
-# HTTP Interface Methods
-app = Flask(__name__)
-ws = GeventWebSocket(app)
-def initServer():
-    app.run(host = HTTP_host, port = HTTP_port, debug = True)
-
-@app.route('/', methods = ['GET', 'POST'])
-def home():
-    #return home_txt
-    return render_template('home.html')
-
-@app.route('/blocks', methods = ['GET'])
-def blocks_get():
-    global blockchain
-    #print(blockchain)
-    return blockchain2txt(blockchain)
-
-@app.route('/mineBlock', methods = ['GET'])
-def mineblock_get():
-    return render_template('mine.html')
-
-@app.route('/mineBlock', methods = ['POST'])
-def mineblock_post():
-    data = request.form['data']
-    print(data)
-    addBlock(generateNextBlock(data))
-    return 'OK block added!'
-    
-@app.route('/clientMine', methods = ['POST'])
-def clientMine_post():
-    data = str(request.form['data']) + str(request.form['nonce'])
-    return addBlockWithDiff(generateNextBlock(data))
-
-@app.route('/peers', methods = ['GET'])
-def peers_get():
-    pass
-
-@app.route('/addPeer', methods = ['POST'])
-def addPeer_post():
-    pass
-
+# Global operations on initializing.
 blockchain = []
 blockchain.append(getGenesisBlock())
-if __name__ == '__main__':
-    initServer()
-
-    # Debugging
-    # print(blockchain[0])
-    # print(GENESIS_hash)
-    # addBlock(generateNextBlock('data'))
-    #print(blockchain2txt(BC.blockchain))
