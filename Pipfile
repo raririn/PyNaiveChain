@@ -1,0 +1,17 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+
+
+[packages]
+
+flask = "*"
+gunicorn = "*"
+gevent = "*"
+flask_uwsgi_websocket = "*"
+
+
+[requires]
+
+python_version = "3.6"
