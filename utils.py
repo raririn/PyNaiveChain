@@ -10,5 +10,5 @@ def blockchain2txt(blockchain):
     text = ''
     for block in blockchain:
         # (self, index, previousHash, timestamp, data, hash)
-        text = text + ('Block No. %s \n PreviousHash: %s \n Timestamp: %s \n Data: %s \n Hash: %s \n' % (str(block.index), block.previousHash, str(block.timestamp), str(block.data), block.hash))
+        text = text + ('Block No. %s <br> PreviousHash: %s <br> Timestamp: %s <br> Data: %s <br> Hash: %s <br><br>' % (str(block.index), block.previousHash, str(block.timestamp), str(block.data), block.hash))
     return text

@@ -3,9 +3,10 @@
   <title>Mining!</title>
 </head>
 <body>
-  <form action="/mineBlock" method="post">
+  <form action="/broadcastTxn" method="post">
     <legend>Input the data you'd like in the new block:</legend>
-    <p><input name="data" placeholder="Data" value="{{ data }}"></p>
+    <p><input name="data1" placeholder="Amount" value="{{ data1 }}"></p>
+    <p><input name="data2" placeholder="Receiver" value="{{ data2 }}"></p>
     <p><button type="submit">Submit</button></p>
   </form>
 </body>

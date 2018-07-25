@@ -3,6 +3,7 @@ from flask_uwsgi_websocket import GeventWebSocket
 from blockchain import *
 
 # HTTP Interface Methods
+txnbuffer = []
 app = Flask(__name__)
 ws = GeventWebSocket(app)
 def initServer():
@@ -17,20 +18,38 @@ def blocks_get():
     global blockchain
     return blockchain2txt(blockchain)
 
-@app.route('/mineBlock', methods = ['GET'])
-def mineblock_get():
+@app.route('/getbuffer', methods = ['GET'])
+def getbuffer():
+    global txnbuffer
+    buffertext = ''
+    for i in txnbuffer:
+        buffertext = buffertext + str(i)
+    txnbuffer = []  # reset
+    return buffertext
+
+@app.route('/getlen', methods = ['GET'])
+def getlen():
+    global blockchain
+    return str(len(blockchain))
+
+@app.route('/broadcastTxn', methods = ['GET'])
+def broadcastTxn_get():
     return render_template('mine.html')
 
-@app.route('/mineBlock', methods = ['POST'])
-def mineblock_post():
-    data = request.form['data']
-    print(data)
-    addBlock(generateNextBlock(data))
-    return 'OK block added!'
+@app.route('/broadcastTxn', methods = ['POST'])
+def broadcastTxn_post():
+    data1 = request.form['data1']   # Output address
+    data2 = request.form['data2']   # amount
+    global blockchain
+    index = len(blockchain)
+    ID = calculateHash(str(data1) + str(data2) + str(index))
+    txn = "<br>{Transaction ID: " + str(ID) + "<br>IN: " + str(SENDDEFAULT_publickey) + "-><br>OUT: " + str(data1) + "<br>Amount: " + str(data2) + "Coins}"
+    txnbuffer.append(txn)
+    return 'OK message sent!'
     
 @app.route('/clientMine', methods = ['POST'])
 def clientMine_post():
-    data = str(request.form['data']) + str(request.form['nonce'])
+    data = str(request.form['data']) + '<br> Nonce:' + str(request.form['nonce'])
     return addBlockWithDiff(generateNextBlock(data))
 
 @app.route('/peers', methods = ['GET'])
@@ -43,6 +62,7 @@ def addPeer_ws(wscon):
     users[wscon.id] = wscon
     while True:
         message = wscon.receive()
+        print("message:", message)
         if message is not None:
             for id in users:
                 if id != wscon.id:

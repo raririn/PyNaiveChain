@@ -1,0 +1,7 @@
+{
+    "name": "PyNaiveChain",
+    "description": "A naive blockchain implementation in Python.",
+    "image": "heroku/python",
+    "repository": "https://github.com/raririn/PyNaiveChain",
+    "keywords": ["python", "flask" ]
+  }

@@ -49,8 +49,10 @@ def addBlock(newBlock):
 def isValidNewBlockWithDiff(newBlock, previousBlock):
     if not isValidNewBlock(newBlock, previousBlock):
         return False
-    elif not newBlock.hash[0] == '0':
-        return False
+    for i in range(DEFAULT_difficulty):
+        if not newBlock.hash[i] == '0':
+            return False
+    print("reach end")
     return True
 
 def addBlockWithDiff(newBlock):
