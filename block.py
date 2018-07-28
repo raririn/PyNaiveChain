@@ -23,14 +23,46 @@ class Block():
     def _calculateHash(self):
         return hashlib.sha256(self._getHashString().encode()).hexdigest()
 
+    @inplaceMethod
+    def _addCoinBaseTxn(self, sign):
+        pass
+
+    @inplaceMethod
+    def forceRecalculateHash(self):
+        ''' This is the EXTERNAL method of force recalculating hash value of a block,
+            for cases if the values inside are overriden and thus need a recal.
+            Return True if the value is already correct, and False if not.'''
+        if self._checkHash:
+            return True
+        else:
+            self.hash = self._calculateHash()
+            return False
+    
+    @inplaceMethod
+    def _recalculateHash(self):
+        self.hash = self._calculateHash()
+    
+    @inplaceMethod
+    def overrideTimestamp(self, timestamp):
+        ''' External method for overriding timestamp after initialization. '''
+        self.timestamp = timestamp
+        self._recalculateHash()
+        return 0
+
+    @inplaceMethod
+    def incrementNonce(self):
+        ''' Increment the nonce by 1.'''
+        self.nonce = self.nonce + 1
+        self._recalculateHash()
+        return 0
+
     def getHash(self):
         ''' Return hash value of the block. '''
         return self.hash
 
     def _checkHash(self):
-        ''' Redundant function left; since the hash calculation has been changed. '''
-        return self.hash == calculateHash(str(self.index) + self.previousHash + str(self.timestamp) + str(self.data))
-    
+        return self.hash == self._calculateHash()
+
     def getDictForm(self):
         ''' Return dict format information of the block.'''
         blockDict = {'Index': self.index,

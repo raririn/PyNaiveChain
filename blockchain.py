@@ -6,7 +6,7 @@ from block import *
 class Blockchain:
     def __init__(self):
         self.chain = [self._getGenesisBlock()]
-        self.difficulty = 5
+        self.difficulty = 2
     
     def _getGenesisBlock(self):
         ''' Return the hard-coded genesis block. '''
@@ -18,6 +18,9 @@ class Blockchain:
     
     def getLatestBlock(self):
         return self.chain[-1]
+    
+    def getLatestHash(self):
+        return self.chain[-1].hash
     
     def _generateNextBlock(self, data):
         ''' Generate a new block given data to store, and fetch the latest block as previous. '''
