@@ -35,6 +35,7 @@ class HTTPClient:
         ''' Send a request to central server and grab info. '''
         r = requests.get(mainURL + "/showChain")
         chainJSON = r.text
+        print(chainJSON)
         chainINFO = json.loads(chainJSON)
         return chainINFO
     
@@ -45,4 +46,4 @@ class HTTPClient:
 
 
 if __name__ == '__main__':
-    print(HTTPClient.requestToMain())
+    print(HTTPClient.requestToMain(P2P_central_server))

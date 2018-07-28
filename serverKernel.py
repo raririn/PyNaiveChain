@@ -14,6 +14,7 @@ ws = GeventWebSocket(app)
 
 def initServer():
     app.run(host = HTTP_host, port = HTTP_port, debug = True)
+    return
 
 @app.route('/', methods = ['GET'])
 def home():
@@ -24,7 +25,7 @@ def showChain():
     global blockchain
     return blockchain.getJSON()
 
-@app.route('/addPeer', method = ['GET', 'POST'])
+@app.route('/addPeer', methods = ['GET', 'POST'])
 def addPeer():
     global peerList
     peerList.append(request.remote_addr)
