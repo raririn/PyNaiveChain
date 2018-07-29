@@ -16,12 +16,13 @@
                 showMessage("Your browser doesn't support WebSockets")
               }
           }
-          var ws = new WebSocket('ws://127.0.0.1:5001/addPeer');
+          var ws = new WebSocket('ws://localhost:5py001/getConnect');
           ws.onopen = function(evt) {
             showMessage('Connected to chat.')
           }
           ws.onmessage = function(evt) {
-            showMessage(evt.data)
+            var data = event.data
+            ws.send(data)
           }
           ws.onclose = function(evt) {
               $('#messages').append('<li>WebSocket connection closed.</li>');

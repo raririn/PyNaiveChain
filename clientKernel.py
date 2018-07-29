@@ -50,8 +50,8 @@ class P2PClient:
         pass
     
     @staticmethod
-    def createConnection(targetAddress, Port):
-        ws = create_connection("ws://" + str(targetAddress) + ":" + str(Port) + "/")
+    def createConnection(targetAddress):
+        ws = create_connection(targetAddress)
         ws.send("Test Message")
         result = ws.recv()
         print(result)
@@ -59,4 +59,4 @@ class P2PClient:
 
 
 if __name__ == '__main__':
-    print(HTTPClient.requestToMain(P2P_central_server))
+    P2PClient.createConnection(P2P_central_server_domain)

@@ -51,6 +51,10 @@ def broadcastTxn_post():
 def showPool():
     return ' '.join([i for i in txnPool])
 
+@app.route('/getConnectAddress', methods = ['GET', 'POST'])
+def getConnectAddress():
+    return render_template('peerConnect.html')
+
 @ws.route('/getConnect')
 def getConnect_ws(wscon):
     count = 0
