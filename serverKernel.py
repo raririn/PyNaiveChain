@@ -50,3 +50,18 @@ def broadcastTxn_post():
 @app.route('/showPool', methods = ['GET'])
 def showPool():
     return ' '.join([i for i in txnPool])
+
+@ws.route('/getConnect')
+def getConnect_ws(wscon):
+    count = 0
+    users = {}
+    users[wscon.id] = wscon
+    while True:
+        message = wscon.receive()
+        if message is not None:
+            for id in users:
+                users[id].send(message, count)
+                count += 1
+        else:
+            break
+    del users[wscon.id]

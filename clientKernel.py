@@ -8,6 +8,7 @@
 from utils import *
 from blockchain import *
 import requests
+from websocket import create_connection
 
 @localMethod
 def localMine(data):
@@ -43,6 +44,18 @@ class HTTPClient:
     def broadcastTxn(mainURL):
         r = requests.post(mainURL + "/broadcastTxn", data = {'data1': 'Output', 'data2': 'Amount'})
 
+
+class P2PClient:
+    def __init__(self):
+        pass
+    
+    @staticmethod
+    def createConnection(targetAddress, Port):
+        ws = create_connection("ws://" + str(targetAddress) + ":" + str(Port) + "/")
+        ws.send("Test Message")
+        result = ws.recv()
+        print(result)
+        ws.close()
 
 
 if __name__ == '__main__':
