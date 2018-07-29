@@ -16,7 +16,7 @@
                 showMessage("Your browser doesn't support WebSockets")
               }
           }
-          var ws = new WebSocket('ws://localhost:5py001/getConnect');
+          var ws = new WebSocket('ws://localhost:5001/getConnect');
           ws.onopen = function(evt) {
             showMessage('Connected to chat.')
           }
