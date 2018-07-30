@@ -27,9 +27,17 @@ home_txt = '''<html>
 <p>Hello, world! </p>
 </body>
 </html>'''
+HTTP_localhost = 'localhost:5001'
 
 
 # P2P server parameter
 P2P_port = 6001
+P2P_recvport = 6005
+P2P_sendport = 6001
 P2P_central_server = "http://bc-t.herokuapp.com/"
 P2P_central_server_domain = "ws://bc-t.herokuapp:5001/getConnect"
+P2P_localhost = "localhost:6001"
+
+P2P_query_LATESTBLOCK = 0
+P2P_query_ALLBLOCK = 1
+P2P_query_PEERLIST = 2

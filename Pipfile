@@ -11,6 +11,9 @@ gunicorn = "*"
 gevent = "*"
 flask_uwsgi_websocket = "*"
 websocket_client = "*"
+websockets = "*"
+ecdsa = "*"
+numpy = "*"
 
 [requires]
 

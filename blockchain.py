@@ -4,9 +4,12 @@ from block import *
 ##  It is annoying to use global methods, so a new class is defined.
 
 class Blockchain:
-    def __init__(self):
-        self.chain = [self._getGenesisBlock()]
-        self.difficulty = 2
+    def __init__(self, chain = [], difficulty = 2):
+        if chain == []:
+            self.chain = [self._getGenesisBlock()]
+        else:
+            self.chain = chain
+        self.difficulty = difficulty
     
     def _getGenesisBlock(self):
         ''' Return the hard-coded genesis block. '''
@@ -37,12 +40,56 @@ class Blockchain:
         dList = [i.getDictForm() for i in self.chain]
         return json.dumps(dList)
 
+    @inplaceMethod
     def _adjustDifficulty(self):
         return False
+    
+    def isValid(self):
+        ''' Validate the blockchain. '''
+        for i in range(self.chain.getLength()):
+            block = self.chain[i]
+            if not (isinstance(block.index, int) and isinstance(block.hash, str) and \
+            isinstance(block.previousHash, str) and isinstance(block.timestamp, str) \
+            and isinstance(block.nonce, int)):
+                return False
+            if self.chain[i+1].previousHash != self.chain[i].hash:
+                return False
+            if self.chain[i+1].index != (self.chain[i].index + 1):
+                return False
+        return True
+            
+        
+
+def buildChainFromJSON(chainJSON):
+    chainList = json.loads(chainJSON)
+    blockList = []
+    for i in chainList:
+        a_block = Block(i['Index'], i['PreviousHash'], i['TimeStamp'], i['Data'], i['Nonce'])
+        blockList.append(a_block)
+    return Blockchain(blockList)
+
+def chooseChain(chain1, chain2):
+    ''' Choose the longer chain. Return 0 if both chains are valid and have equal length,
+        and -1 if both are not valid (not expected since at least one of them should 
+        be originally verified).'''
+    if chain1.isValid() and chain2.isValid():
+        if chain1.getLength() > chain2.getLength():
+            return chain1
+        elif chain2.getLength() > chain1.getLength():
+            return chain2
+        else:
+            return 0
+    elif chain1.isValid() and (not chain2.isValid()):
+        return chain1
+    elif (not chain1.isValid()) and chain2.isValid():
+        return chain2
+    else:
+        return -1
 
 if __name__ == '__main__':
     blockchain = Blockchain()
-    print(blockchain.chain[0])
+    bJ = blockchain.getJSON()
+    print(buildChainFromJSON(bJ).getJSON())
 
 # Global operations on initializing.
 else:

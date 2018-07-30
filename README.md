@@ -5,8 +5,5 @@ A modified Python3 implementation of [naivechain](https://github.com/lhartikk/na
 Note on dev branch:
 The master branch is synchronized with deployment on heroku.
 
-
 Requirement:
-`Python3`, `Flask`, `gevent`, `flask_uwsgi_websocket`
-
-
+`Python3.6`, `Flask`, `gevent`, `flask_uwsgi_websocket`, `websockets`, `websocket-client`

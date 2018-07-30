@@ -9,23 +9,32 @@ from utils import *
 from blockchain import *
 import requests
 from websocket import create_connection
+import asyncio
+import websockets
 
-@localMethod
-def localMine(data):
-    global blockchain
-    diff = blockchain.difficulty
-    prevBlock = blockchain.getLatestBlock()
-    start_time = time.time()
-    timestamp = calculateTimestamp(int(start_time))
-    targetBlock = Block(prevBlock.index + 1, prevBlock.hash, timestamp, data)
-    while str(targetBlock.hash)[0:diff] != ''.join(['0'] * diff):
-        targetBlock.incrementNonce()
-    print("Block mined. Nonce = " +  str(targetBlock.nonce) + ".")
+class localClient:
+    def __init__(self):
+        pass
 
-def requestToMain(mainURL):
-    ''' Send a request to central server and grab info. '''
-    r = requests.get(mainURL)
-    return r.text
+    @staticmethod
+    def localMine(data):
+        global blockchain
+        diff = blockchain.difficulty
+        prevBlock = blockchain.getLatestBlock()
+        start_time = time.time()
+        timestamp = calculateTimestamp(int(start_time))
+        targetBlock = Block(prevBlock.index + 1, prevBlock.hash, timestamp, data)
+        while str(targetBlock.hash)[0:diff] != ''.join(['0'] * diff):
+            targetBlock.incrementNonce()
+        print("Block mined. Nonce = " +  str(targetBlock.nonce) + ".")
+
+    @staticmethod
+    def requestToMain(mainURL):
+        ''' Send a request to central server and grab info. '''
+        r = requests.get(mainURL)
+        return r.text
+
+
 
 class HTTPClient:
     def __init__(self):
@@ -41,22 +50,46 @@ class HTTPClient:
         return chainINFO
     
     @staticmethod
+    def getLocalIP(mainURL = HTTP_localhost):
+        ''' Send a request querying local IP. '''
+        r = requests.get(mainURL + "/getIP")
+        localIP = r.text
+        return localIP
+    
+    @staticmethod
     def broadcastTxn(mainURL):
         r = requests.post(mainURL + "/broadcastTxn", data = {'data1': 'Output', 'data2': 'Amount'})
 
 
+
 class P2PClient:
-    def __init__(self):
-        pass
+    def __init__(self, port = P2P_recvport):
+        self.port = port
     
     @staticmethod
-    def createConnection(targetAddress):
-        ws = create_connection(targetAddress)
-        ws.send("Test Message")
-        result = ws.recv()
-        print(result)
-        ws.close()
+    async def openConnect(targetAddress = P2P_localhost, queryOption = P2P_query_ALLBLOCK):
+        ''' Open a connect, sending localhost info and get
+            info of chain. '''
+        async with websockets.connect(
+                'ws://' + targetAddress) as websocket:
+            #localIP = HTTPClient.getLocalIP()
+            localIP = '1'
+            localTarget =  str(localIP) + ':' + str(P2P_recvport)
+            query = {'ClientInfo': localTarget, 'Query': queryOption}
+            queryJSON = json.dumps(query)
+            await websocket.send(queryJSON)
+            backMsg = await websocket.recv()
+            if query['Query'] == P2P_query_ALLBLOCK:
+                chainObtained = buildChainFromJSON(backMsg)
+                print(backMsg)
+            else:
+                pass
 
+    
+    @staticmethod
+    def initConnect():
+        asyncio.get_event_loop().run_until_complete(P2PClient.openConnect())
+        #asyncio.get_event_loop().run_forever()
 
 if __name__ == '__main__':
-    P2PClient.createConnection(P2P_central_server_domain)
+    P2PClient.initConnect()

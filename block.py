@@ -1,16 +1,21 @@
 from utils import *
 from param import *
+from txn import *
 
 ##  Rework
 ##  Hash should not be passed into the block; but calculated inside instead.
 
+class Data():
+    def __init__(self):
+        pass
+
 class Block():
-    def __init__(self, index, previousHash, timestamp, data):
-        self.index = index
+    def __init__(self, index, previousHash, timestamp, data = '', nonce = 0):
+        self.index = int(index)
         self.previousHash = str(previousHash)
         self.timestamp = timestamp
         self.data = data
-        self.nonce = 0
+        self.nonce = nonce
         self.hash = self._calculateHash()
 
     def __str__(self):
@@ -69,5 +74,9 @@ class Block():
         'PreviousHash': self.previousHash,
         'TimeStamp': self.timestamp,
         'Data': self.data,
-        'nonce': self.nonce}
+        'Nonce': self.nonce}
         return blockDict
+
+if __name__ == '__main__':
+    a = Block(1, 0, 0, '123')
+    print(a.getDictForm())
