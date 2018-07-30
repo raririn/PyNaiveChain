@@ -26,7 +26,7 @@ class Block():
         return str(self.index) + self.previousHash + str(self.timestamp) + str(self.data) + str(self.nonce)
 
     def _calculateHash(self):
-        return hashlib.sha256(self._getHashString().encode()).hexdigest()
+        return calculateHash(self._getHashString())
 
     @inplaceMethod
     def _addCoinBaseTxn(self, sign):

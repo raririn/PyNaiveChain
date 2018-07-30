@@ -14,7 +14,7 @@ import websockets
 
 class localClient:
     def __init__(self):
-        pass
+        self.txnPool = []
 
     @staticmethod
     def localMine(data):
@@ -27,13 +27,6 @@ class localClient:
         while str(targetBlock.hash)[0:diff] != ''.join(['0'] * diff):
             targetBlock.incrementNonce()
         print("Block mined. Nonce = " +  str(targetBlock.nonce) + ".")
-
-    @staticmethod
-    def requestToMain(mainURL):
-        ''' Send a request to central server and grab info. '''
-        r = requests.get(mainURL)
-        return r.text
-
 
 
 class HTTPClient:
