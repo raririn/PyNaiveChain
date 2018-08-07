@@ -1,5 +1,6 @@
-from block import *
-
+from block import Block
+from utils import *
+from param import *
 ##  Rework
 ##  It is annoying to use global methods, so a new class is defined.
 
@@ -16,7 +17,7 @@ class Blockchain:
         return Block(GENESIS_index, GENESIS_previousHash, GENESIS_timestamp, GENESIS_data)
 
     def getLength(self):
-        ''' Return the current length. '''
+        ''' Return the current length. Note the length equals to index of the NEXT block.'''
         return len(self.chain)
     
     def getLatestBlock(self):
@@ -25,6 +26,7 @@ class Blockchain:
     def getLatestHash(self):
         return self.chain[-1].hash
     
+    @inplaceMethod
     def _generateNextBlock(self, data):
         ''' Generate a new block given data to store, and fetch the latest block as previous. '''
         previous_block = self.getLatestBlock()
@@ -45,7 +47,9 @@ class Blockchain:
         return False
     
     def isValid(self):
-        ''' Validate the blockchain. '''
+        ''' Validate the blockchain.
+            Note: The method is expensive as it iterates over the full block list.
+        '''
         for i in range(self.chain.getLength()):
             block = self.chain[i]
             if not (isinstance(block.index, int) and isinstance(block.hash, str) and \
@@ -56,35 +60,38 @@ class Blockchain:
                 return False
             if self.chain[i+1].index != (self.chain[i].index + 1):
                 return False
+            if not block._checkHash():
+                return False
         return True
             
         
+    @staticmethod
+    def buildChainFromJSON(chainJSON):
+        chainList = json.loads(chainJSON)
+        blockList = []
+        for i in chainList:
+            a_block = Block(i['Index'], i['PreviousHash'], i['TimeStamp'], i['Data'], i['Nonce'])
+            blockList.append(a_block)
+        return Blockchain(blockList)
 
-def buildChainFromJSON(chainJSON):
-    chainList = json.loads(chainJSON)
-    blockList = []
-    for i in chainList:
-        a_block = Block(i['Index'], i['PreviousHash'], i['TimeStamp'], i['Data'], i['Nonce'])
-        blockList.append(a_block)
-    return Blockchain(blockList)
-
-def chooseChain(chain1, chain2):
-    ''' Choose the longer chain. Return 0 if both chains are valid and have equal length,
-        and -1 if both are not valid (not expected since at least one of them should 
-        be originally verified).'''
-    if chain1.isValid() and chain2.isValid():
-        if chain1.getLength() > chain2.getLength():
+    @staticmethod
+    def chooseChain(chain1, chain2):
+        ''' Choose the longer chain. Return 0 if both chains are valid and have equal length,
+            and -1 if both are not valid (not expected since at least one of them should 
+            be originally verified).'''
+        if chain1.isValid() and chain2.isValid():
+            if chain1.getLength() > chain2.getLength():
+                return chain1
+            elif chain2.getLength() > chain1.getLength():
+                return chain2
+            else:
+                return 0
+        elif chain1.isValid() and (not chain2.isValid()):
             return chain1
-        elif chain2.getLength() > chain1.getLength():
+        elif (not chain1.isValid()) and chain2.isValid():
             return chain2
         else:
-            return 0
-    elif chain1.isValid() and (not chain2.isValid()):
-        return chain1
-    elif (not chain1.isValid()) and chain2.isValid():
-        return chain2
-    else:
-        return -1
+            return -1
 
 if __name__ == '__main__':
     blockchain = Blockchain()

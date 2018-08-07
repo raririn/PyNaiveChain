@@ -5,6 +5,7 @@
 #   1. A HTTP-interface client, handling visualization.
 #   2. Set up several websockets to handle P2P communication.
 
+import os
 from utils import *
 from blockchain import *
 import requests

@@ -8,12 +8,11 @@ verify_ssl = true
 
 flask = "*"
 gunicorn = "*"
-gevent = "*"
-flask_uwsgi_websocket = "*"
-websocket_client = "*"
-websockets = "*"
+sanic = "*"
+websockets = "5.0.1"
 ecdsa = "*"
 numpy = "*"
+
 
 [requires]
 
