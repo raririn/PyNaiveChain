@@ -27,6 +27,10 @@ class Blockchain:
         return self.chain[-1].hash
     
     @inplaceMethod
+    def addNewBlock(self, block):
+        self.chain.append(block)
+
+    @inplaceMethod
     def _generateNextBlock(self, data):
         ''' Generate a new block given data to store, and fetch the latest block as previous. '''
         previous_block = self.getLatestBlock()
@@ -50,17 +54,22 @@ class Blockchain:
         ''' Validate the blockchain.
             Note: The method is expensive as it iterates over the full block list.
         '''
-        for i in range(self.chain.getLength()):
+        for i in range(self.getLength()):
             block = self.chain[i]
             if not (isinstance(block.index, int) and isinstance(block.hash, str) and \
             isinstance(block.previousHash, str) and isinstance(block.timestamp, str) \
             and isinstance(block.nonce, int)):
+                print('Invalid structure.')
                 return False
-            if self.chain[i+1].previousHash != self.chain[i].hash:
-                return False
-            if self.chain[i+1].index != (self.chain[i].index + 1):
-                return False
+            if i != 0:
+                if self.chain[i].previousHash != self.chain[i-1].hash:
+                    print('Invalid prevHash.')
+                    return False
+                if self.chain[i].index != (self.chain[i-1].index + 1):
+                    print('Invalid index.')
+                    return False
             if not block._checkHash():
+                print('Invalid hash.')
                 return False
         return True
             

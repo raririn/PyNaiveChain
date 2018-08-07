@@ -42,4 +42,4 @@ P2P_query_LATESTBLOCK = 0
 P2P_query_ALLBLOCK = 1
 P2P_query_PEERLIST = 2
 P2P_res_CHAIN = 3
-P2P_broadcast_CHAIN = 4
+P2P_broadcast_CHAIN = 3

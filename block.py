@@ -13,7 +13,7 @@ class Block():
     def __init__(self, index, previousHash, timestamp, data = '', nonce = 0):
         self.index = int(index)
         self.previousHash = str(previousHash)
-        self.timestamp = timestamp
+        self.timestamp = str(timestamp)
         self.data = data
         self.nonce = nonce
         self.hash = self._calculateHash()

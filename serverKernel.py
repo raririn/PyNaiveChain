@@ -7,6 +7,7 @@ import websockets
 from websockets.exceptions import ConnectionClosed
 
 from blockchain import Blockchain
+from block import Block
 from param import *
 from utils import *
 from txn import *
@@ -27,13 +28,13 @@ class Server():
         self.app.add_websocket_route(self.P2PHandler, '/')
 
     async def showChain(self, request):
-        return self.blockchain.getJSON()
+        return response.text(self.blockchain.getJSON())
     
     async def mineBlockPage(self, request):
         return render_template('mineBlock.html')
 
     async def mineBlock(self, request):
-        data = request.form['data']
+        data = request.form['data'][0]  # IDK but data turns out to be a list instead of str
         currentBlock = self.blockchain.getLatestBlock()
         diff = self.blockchain.difficulty
         start_time = time.time()
@@ -41,7 +42,8 @@ class Server():
         targetBlock = Block(currentBlock.index + 1, currentBlock.hash, timestamp, data)
         while str(targetBlock.hash)[0:diff] != ''.join(['0'] * diff):
             targetBlock.incrementNonce()
-        self.blockchain
+        self.blockchain.addNewBlock(targetBlock)
+        await self._broadcast(self.blockchain.getJSON(), P2P_broadcast_CHAIN)
         return response.text(str(targetBlock.nonce))
 
     async def peers(self, request):
@@ -109,16 +111,18 @@ class Server():
 
     async def process_res(self, ws, message):
         blockRecv = Blockchain.buildChainFromJSON(message['data'])
+        print(message['data'])
         choose = Blockchain.chooseChain(self.blockchain, blockRecv)
-        if choose == 0:
-            pass
+        if isinstance(choose, int):
+            print("Error: invalid chain. Code = ", choose)
         else:
+            print("Chain replaced.")
             self.blockchain = choose
 
-    async def _broadcast(self, message, option = 0):
+    async def _broadcast(self, message, option = P2P_broadcast_CHAIN):
         ''' General broadcast method, either works for txn and block.'''
         for socket in self.sockets:
-            await socket.send(json.dumps(message))
+            await socket.send(json.dumps({'type': option, 'data':message}))
     
 if __name__ == '__main__':
     server = Server()
